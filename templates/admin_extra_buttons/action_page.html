@@ -1,0 +1,46 @@
+{% extends "admin_extra_buttons/action_page.html" %}
+{% load i18n static admin_list admin_urls %}
+{% block content_title %}{{ opts.verbose_name_plural|capfirst }}{% endblock %}
+
+{% block bodyclass %}{{ block.super }} extra-buttons-action-form{% endblock %}
+
+
+{% block breadcrumbs %}
+<div class="row">
+    <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name|capfirst|escape }}</a></li>
+            <li class="breadcrumb-item">
+                {% if has_view_permission %}
+                    <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+                {% else %}
+                    {{ opts.verbose_name_plural|capfirst }}
+                {% endif %}            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url opts|admin_urlname:'change' original.id %}">{{ original.name }}</a>
+            </li>
+            <li class="breadcrumb-item active">
+                {% trans 'Cancelar Pedido' as confirmation %}
+                {{ title|default_if_none:confirmation }}
+            </li>
+        </ol>
+    </div>
+</div>
+    
+{% endblock %}
+
+{% block action-content %}
+    {% if original %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4>
+                    {{ original }}
+                </h4>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

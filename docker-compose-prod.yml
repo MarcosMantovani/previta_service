@@ -1,0 +1,128 @@
+version: "3"
+services:
+  postgres:
+    container_name: previta-postgres-prod
+    image: postgres:15
+    environment:
+      POSTGRES_DB: previta
+      POSTGRES_USER: previta
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    cpus: "2.0"
+    mem_limit: "2g"
+    memswap_limit: "2g"
+    pids_limit: 100
+    ulimits:
+      nofile: 65536
+    logging:
+      driver: local
+      options:
+        max-size: "50m"
+        max-file: "5"
+    labels:
+      - logs=expose
+      - env=prod
+
+  redis:
+    container_name: previta-redis-prod
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: "512m"
+    memswap_limit: "512m"
+    pids_limit: 50
+    ulimits:
+      nofile: 65536
+    logging:
+      driver: local
+      options:
+        max-size: "50m"
+        max-file: "5"
+    labels:
+      - logs=expose
+      - env=prod
+
+  previta-service:
+    container_name: previta-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "previta-core:latest"
+    working_dir: /previta
+    command: bash -c "./start-service.sh"
+    ports:
+      - "8882:8882"
+    volumes:
+      - ./:/previta:delegated
+      - pip-cache:/previta/pip-cache
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    labels:
+      - logs=expose
+      - env=prod
+    cpus: "4.0" # teto de CPU visível p/ container
+    mem_limit: "8g" # teto de RAM
+    memswap_limit: "8g"
+    pids_limit: 400 # evita explosão de threads/processos
+    ulimits:
+      nofile: 65536 # muitos sockets/FDs (WS/HTTP)
+    logging:
+      driver: local
+      options:
+        max-size: "50m"
+        max-file: "5"
+    env_file: .env
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres
+      - redis
+  previta-scheduler:
+    container_name: previta-scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "previta-core:latest"
+    working_dir: /previta
+    command: bash -c "./start-scheduler.sh"
+    volumes:
+      - ./:/previta:delegated
+      - pip-cache:/previta/pip-cache
+      - ./celery-data:/data # guarda celerybeat-schedule.db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file: .env
+    cpus: "3.0"
+    mem_limit: "4g"
+    memswap_limit: "4g"
+    pids_limit: 300
+    ulimits:
+      nofile: 65536
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres
+      - redis
+      - previta-service
+    restart: unless-stopped
+    labels:
+      - logs=expose
+      - env=prod
+    logging:
+      driver: local
+      options:
+        max-size: "50m"
+        max-file: "5"
+volumes:
+  pip-cache:
+  postgres_data:
+  redis_data:

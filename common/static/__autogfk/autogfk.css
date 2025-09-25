@@ -1,0 +1,33 @@
+[data-autogfk-initialized="1"] .select2-container {   
+    min-width: 24rem;
+}
+
+[data-autogfk-initialized="1"] .select2-container:nth-of-type(1) {   
+    margin-right: 0.5rem;    
+}
+
+[data-autogfk-initialized="1"] [data-autogfk-show-app-label="0"] ~ .select2-container:nth-of-type(1) {   
+    min-width: 12rem;
+}
+
+/* Keep links visible but clearly disabled */
+.related-widget-wrapper a.autogfk-disabled-link {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+[data-autogfk-wrapper] {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+[data-autogfk-links] {
+    display: flex;
+    gap: 0 10px;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+}
+

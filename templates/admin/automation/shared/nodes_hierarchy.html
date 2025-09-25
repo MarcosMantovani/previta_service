@@ -1,0 +1,366 @@
+<div class="nodes-hierarchy-container">
+    <style>
+        .nodes-hierarchy, .child-nodes {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+        
+        .child-nodes {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .node-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin: 8px 0;
+            padding: 12px;
+            position: relative;
+            cursor: move;
+        }
+        
+        .node-item:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .ui-sortable-helper {
+            background: #fff3cd !important;
+            border-color: #ffeaa7 !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: rotate(2deg);
+        }
+        
+        .ui-sortable-placeholder {
+            background: #e3f2fd !important;
+            border: 2px dashed #2196f3 !important;
+            border-radius: 6px;
+            height: 50px;
+            margin: 8px 0;
+        }
+        
+        .sortable-handle {
+            color: #6c757d;
+            cursor: grab;
+            display: inline-block;
+            font-weight: bold;
+            margin-right: 8px;
+            user-select: none;
+        }
+        
+        .sortable-handle:hover {
+            color: #495057;
+        }
+        
+        .sortable-handle:active {
+            cursor: grabbing;
+        }
+        
+        .node-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .node-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .node-title {
+            font-weight: 600;
+            color: #495057;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+        
+        .node-title:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        
+        .node-meta {
+            color: #6c757d;
+            font-size: 0.875em;
+        }
+        
+        .node-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-button {
+            background: #a9cddf;
+            border: 1px solid #159fe4;
+            border-radius: 4px;
+            color: #000000 !important;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.875em;
+            padding: 6px 10px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        
+        .dropdown-button:hover {
+            background: #93c1d8;
+            text-decoration: none;
+        }
+        
+        .dropdown-content {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            min-width: 180px;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            z-index: 1000;
+        }
+        
+        .dropdown-content.show {
+            display: block;
+        }
+        
+        .dropdown-content a {
+            color: #495057;
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-content a:hover {
+            background: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+        }
+                
+        .no-nodes-message {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            color: #6c757d;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+
+    <!-- Botão para adicionar root node -->
+    <div class="dropdown" style="margin-bottom: 15px;">
+        <a href="#" class="add-root-button dropdown-button" onclick="toggleDropdown(event, this)">
+            ➕ Add Root Node ▼
+        </a>
+        <div class="dropdown-content">
+            {% for node_type in node_types %}
+                <a href="{{ node_type.url }}" 
+                   class="related-widget-wrapper-link add-related"
+                   data-popup="yes" 
+                   data-reload-parent="true"
+                   title="Add {{ node_type.name }}">{{ node_type.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if roots %}
+        <ul class="nodes-hierarchy">
+            {% for node in roots %}
+                {% include "admin/automation/shared/node_item.html" %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="no-nodes-message">
+            <p><strong>No nodes configured yet</strong></p>
+            <p>Start by adding a root node using the button above.</p>
+        </div>
+    {% endif %}
+
+    <script>
+        // Função para aguardar o carregamento do jQuery
+        function waitForjQuery(callback) {
+            if (typeof jQuery !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(function() {
+                    waitForjQuery(callback);
+                }, 100);
+            }
+        }
+
+        // Função para carregar jQuery UI dinamicamente
+        function loadjQueryUI(callback) {
+            // Verificar se jQuery UI já está carregado
+            if (typeof jQuery.ui !== 'undefined') {
+                callback();
+                return;
+            }
+
+            // Carregar CSS do jQuery UI
+            const css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = 'https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css';
+            document.head.appendChild(css);
+
+            // Carregar JS do jQuery UI
+            const script = document.createElement('script');
+            script.src = 'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js';
+            script.onload = function() {
+                // Aguardar um pouco para garantir que o jQuery UI está totalmente carregado
+                setTimeout(callback, 100);
+            };
+            document.head.appendChild(script);
+        }
+
+        function toggleDropdown(event, button) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const dropdown = button.nextElementSibling;
+            const isShown = dropdown.classList.contains('show');
+            
+            // Fechar todos os dropdowns abertos
+            document.querySelectorAll('.dropdown-content.show').forEach(dd => {
+                dd.classList.remove('show');
+            });
+            
+            // Abrir o dropdown clicado (se não estava aberto)
+            if (!isShown) {
+                dropdown.classList.add('show');
+            }
+        }
+
+        // Fechar dropdowns ao clicar fora
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        // Fechar dropdown ao clicar em um link
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.dropdown-content a')) {
+                document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        function initializeSortable() {
+            if (typeof jQuery === 'undefined' || typeof jQuery.ui === 'undefined') {
+                console.warn('jQuery UI not loaded, cannot initialize sortable');
+                return;
+            }
+
+            $('.nodes-hierarchy, .child-nodes').sortable({
+                handle: '.sortable-handle',
+                placeholder: 'ui-sortable-placeholder',
+                connectWith: '.nodes-hierarchy, .child-nodes',
+                tolerance: 'pointer',
+                stop: function(event, ui) {
+                    // Após o drop, atualizar a ordem
+                    updateNodeOrder(ui.item.closest('ul'));
+                }
+            });
+        }
+
+        function updateNodeOrder(sortableList) {
+            const nodes = [];
+            const parentId = sortableList.attr('data-parent-id') || null;
+            
+            sortableList.children('.node-item').each(function(index) {
+                const nodeId = $(this).attr('data-node-id');
+                nodes.push({
+                    node_id: nodeId,
+                    order: index,
+                    parent_id: parentId
+                });
+            });
+
+            // Enviar via AJAX
+            $.ajax({
+                url: `/admin/automation/{{ model_name }}/update-nodes-order/`,
+                method: 'POST',
+                data: {
+                    'nodes': JSON.stringify(nodes),
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Order updated successfully');
+                        // Recarregar apenas a seção da hierarquia
+                        reloadHierarchySection();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error updating order:', error);
+                    alert('Erro ao atualizar a ordem. Tente novamente.');
+                }
+            });
+        }
+        
+        function reloadHierarchySection() {
+            // Extrair o ID do objeto da URL atual
+            const urlParts = window.location.pathname.split('/');
+            const objectId = urlParts[urlParts.indexOf('{{ model_name }}') + 1];
+            
+            if (!objectId) {
+                console.error('Could not extract object ID from URL');
+                window.location.reload(); // Fallback para reload completo
+                return;
+            }
+            
+            // Carregar a hierarquia atualizada via AJAX
+            $.ajax({
+                url: `/admin/automation/{{ model_name }}/${objectId}/hierarchy-section/`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.html) {
+                        // Substituir o conteúdo da hierarquia
+                        const $container = $('.nodes-hierarchy-container');
+                        const $newContent = $(response.html);
+                        
+                        // Preservar o container mas substituir o conteúdo
+                        $container.html($newContent.html());
+                        
+                        // Reinicializar o sortable na nova estrutura
+                        setTimeout(function() {
+                            initializeSortable();
+                        }, 100);
+                    } else {
+                        console.error('Invalid response format');
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error reloading hierarchy:', error);
+                    // Fallback para reload completo em caso de erro
+                    window.location.reload();
+                }
+            });
+        }
+
+        // Aguardar jQuery e depois carregar/inicializar jQuery UI
+        waitForjQuery(function() {
+            loadjQueryUI(function() {
+                initializeSortable();
+            });
+        });
+
+    </script>
+</div>

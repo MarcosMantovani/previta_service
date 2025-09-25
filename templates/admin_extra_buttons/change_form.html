@@ -1,0 +1,59 @@
+{% extends "admin/change_form.html" %}{% load i18n static admin_list admin_urls %}
+{% block object-tools-items %}
+    {{ block.super }}
+    {% include "admin_extra_buttons/includes/change_form_buttons.html" %}
+</div>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+    {{  block.super }}
+    <script type="module">
+        
+        const previous_status = '{{ original.connection_status }}'
+        const previous_qr_code = '{{ original.qr_code_base64 }}'
+        import { v4 as uuidv4 }  from 'https://esm.sh/uuid@10.0.0'
+
+        const ws_url = window.location.protocol === 'https:' ? `wss://${window.location.host}/ws/` : `ws://${window.location.host}/ws/`;
+
+        const ws = new WebSocket(ws_url);
+
+        ws.onmessage = function(e) {
+            const message = JSON.parse(e.data)
+            const instance = message.payload.data
+            
+
+            if (instance) {
+                console.log('Previous Status:', previous_status)
+                console.log('Current Status:', instance.connection_status)
+
+                if (instance.qr_code_base64 !== previous_qr_code) {
+                    window.location.reload()
+                } else if (instance.connection_status !== previous_status) {
+                    window.location.reload()
+                }
+            }
+        };
+
+        ws.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        ws.onopen = function(e) {
+            console.log('Chat socket opened');
+
+
+            ws.send(JSON.stringify({
+                payload: {
+                    pk: {{ original.pk }},
+                    action: 'subscribe_instance',
+                    request_id: uuidv4()
+                },
+                stream: 'evolution.whatsapp.business.channel.config'
+            }));
+        };
+
+       
+      </script>
+    <script src="{% static 'common/js/dcrf-in-browser.js' %}"></script>
+{% endblock %}

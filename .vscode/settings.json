@@ -1,0 +1,17 @@
+{
+    "python.terminal.activateEnvironment": true,
+    "cursorpyright.analysis.useLibraryCodeForTypes": true,
+    "cursorpyright.analysis.diagnosticSeverityOverrides": {
+        "reportArgumentType": "information"
+    },
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "files.watcherExclude": {
+        "**/uploads/**": true
+    },
+    "[html][django-html][handlebars][hbs][mustache][jinja][jinja-html][nj][njk][nunjucks][twig]": {
+        "editor.formatOnSave": false
+    }
+}

@@ -1,0 +1,235 @@
+{% load i18n admin_urls static %}
+
+<div class="js-inline-polymorphic-admin-formset inline-group card card-secondary"
+     id="{{ inline_admin_formset.formset.prefix }}-group"
+     data-inline-type="stacked"
+     data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
+
+<fieldset class="module {{ inline_admin_formset.classes }}">
+  <div class="card-header">
+    <h3 class="card-title">{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h3>
+  </div>
+  <div class="card-body">
+    {{ inline_admin_formset.formset.management_form }}
+    {{ inline_admin_formset.formset.non_form_errors }}
+
+    {% for inline_admin_form in inline_admin_formset %}
+      <div class="inline-related card {% if forloop.last %}last-related{% endif %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if inline_admin_form.is_empty %} empty-form{% endif %} inline-{{ inline_admin_form.model_admin.opts.model_name }}"
+           id="{% if inline_admin_form.original.pk %}{{ inline_admin_formset.formset.prefix }}-{{ forloop.counter0 }}{% else %}{{ inline_admin_form.model_admin.opts.model_name }}-empty{% endif %}">
+
+        <div class="card-header">
+          <h3 class="card-title">
+            <b>{{ inline_admin_form.model_admin.opts.verbose_name|capfirst }}:</b>&nbsp;
+            <span class="inline_label">
+              {% if inline_admin_form.original %}
+                {{ inline_admin_form.original }}
+                {% if inline_admin_form.model_admin.show_change_link and inline_admin_form.model_admin.has_registered_model %}
+                  <a class="inlinechangelink btn btn-xs btn-default" href="{% url inline_admin_form.model_admin.opts|admin_urlname:'change' inline_admin_form.original.pk|admin_urlquote %}">
+                    <i class="fas fa-edit"></i> {% trans "Change" %}
+                  </a>
+                {% endif %}
+              {% else %}
+                #{{ forloop.counter }}
+              {% endif %}
+            </span>
+            {% if inline_admin_form.show_url %}
+              <a href="{{ inline_admin_form.absolute_url }}" class="btn btn-xs btn-default">
+                <i class="fas fa-external-link-alt"></i> {% trans "View on site" %}
+              </a>
+            {% endif %}
+            {% if inline_admin_form.formset.can_delete and inline_admin_form.original %}
+              <span class="delete float-right">
+                <div class="form-check">
+                  {{ inline_admin_form.deletion_field.field }}
+                  <label class="form-check-label" for="{{ inline_admin_form.deletion_field.field.id_for_label }}">
+                    {{ inline_admin_form.deletion_field.label }}
+                  </label>
+                </div>
+              </span>
+            {% endif %}
+          </h3>
+        </div>
+
+        <div class="card-body">
+          {% if inline_admin_form.form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ inline_admin_form.form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          {% for fieldset in inline_admin_form %}
+            {% include "admin/includes/fieldset.html" with wrapper_classes="card card-body" %}
+          {% endfor %}
+
+          {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+          {{ inline_admin_form.fk_field.field }}
+          {{ inline_admin_form.polymorphic_ctype_field.field }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</fieldset>
+</div>
+
+<style type="text/css">
+.inline-group.card {
+    margin-bottom: 20px;
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    border: 0;
+}
+
+.inline-group .card-header {
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: rgba(0,0,0,.03);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.inline-group .card-title {
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.inline-related.card {
+    margin-bottom: 1rem;
+    position: relative;
+    border: 1px solid rgba(0,0,0,.125);
+}
+
+.inline-related .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inline-related .card-header .card-title {
+    margin: 0;
+    line-height: 1;
+    font-size: 0.9rem;
+}
+
+.inline-related .card-body {
+    padding: 1.25rem;
+}
+
+.inline-related .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -7.5px;
+    margin-left: -7.5px;
+}
+
+.inline-related .form-row > div {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-right: 7.5px;
+    padding-left: 7.5px;
+    margin-bottom: 1rem;
+}
+
+.inline-related label {
+    display: block;
+    margin-bottom: .5rem;
+    font-weight: 500;
+}
+
+.inline-related input[type="text"],
+.inline-related select,
+.inline-related textarea {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    box-shadow: inset 0 0 0 transparent;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.inline-related .help {
+    display: block;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #6c757d;
+}
+
+.inline-related.empty-form {
+    display: none;
+}
+
+.inline-related .errorlist {
+    padding-left: 0;
+    list-style: none;
+    color: #dc3545;
+    margin-top: .25rem;
+    font-size: 80%;
+}
+
+.inline-related .form-check {
+    position: relative;
+    display: block;
+    padding-left: 1.25rem;
+}
+
+.inline-related .form-check-input {
+    position: absolute;
+    margin-top: .3rem;
+    margin-left: -1.25rem;
+}
+
+.inline-related .form-check-label {
+    margin-bottom: 0;
+}
+
+.btn-xs {
+    padding: .125rem .25rem;
+    font-size: .75rem;
+    line-height: 1.5;
+    border-radius: .15rem;
+}
+
+.btn-default {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    color: #444;
+}
+
+.float-right {
+    float: right !important;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .inline-related .form-row > div {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .inline-related .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .inline-related .float-right {
+        float: none !important;
+        margin-top: .5rem;
+    }
+}
+</style>

@@ -1,0 +1,11 @@
+name = "media-proxy"
+main = "src/index.ts"         # ajuste se o arquivo for .js
+compatibility_date = "2025-08-05"
+
+nodejs_compat = true            # flag correta
+
+workers_dev = false
+routes = ["media.previta.com.br/*"]
+
+[vars]
+BUCKET = "zg-previta"

@@ -1,0 +1,27 @@
+{% load widget_tweaks %}
+
+<textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} id="{{ widget.attrs.id }}" style="display:none">{{ widget.value }}</textarea>
+<div id="{{ widget.attrs.id }}_editor" class="whatsapp-editor-wrapper"></div>
+<script>
+    (function ($) {
+
+        var editor;
+
+        $(document).ready(() => {
+            if ($("#contacttelcampaign_form").length > 0) {
+                return;
+            }
+    
+            {% if widget.value %}
+            editor = $("#{{ widget.attrs.id }}_editor").whatsappEditor({content: '{{ widget.value }}'});
+            {% else %}
+            editor = $("#{{ widget.attrs.id }}_editor").whatsappEditor();
+            {% endif %}
+            $("#{{ widget.attrs.id }}_editor .whatsapp-editor")[0].addEventListener('input', function() {
+                $("#{{ widget.attrs.id }}").val(editor.getFormattedContent());
+            });
+        });
+
+    })(window.django.jQuery);
+   
+</script>

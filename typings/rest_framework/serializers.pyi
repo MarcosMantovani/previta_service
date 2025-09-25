@@ -1,0 +1,13 @@
+from typing import Any, Dict, TypeVar
+from django.db.models import Model
+
+_M = TypeVar("_M", bound=Model)
+
+class BaseSerializer:
+    def is_valid(self, raise_exception: bool = False) -> bool: ...
+    def save(self, **kwargs: Any) -> Any: ...
+    @property
+    def data(self) -> Dict[str, Any]: ...
+
+class ModelSerializer(BaseSerializer):
+    def save(self, **kwargs: Any) -> _M: ...

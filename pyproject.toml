@@ -1,0 +1,27 @@
+[project]
+name = "previta-service"
+version = "0.1.0"
+requires-python = "==3.10.18"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "missing-docstring",
+    "too-few-public-methods",
+    "import-error",
+    "no-member"
+]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.django-stubs]
+django_settings_module = "service.settings"
+
+[tool.ruff]
+line-length = 88
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+ignore = ["E203"]

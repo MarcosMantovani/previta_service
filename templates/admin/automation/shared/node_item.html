@@ -1,0 +1,44 @@
+<li class="node-item" data-node-id="{{ node.id }}" data-parent-id="{{ node.parent.id|default:'' }}">
+    <div class="node-content">
+        <div class="node-info">
+            <span class="sortable-handle">⋮⋮</span>
+            <a href="{{ node.edit_url }}" 
+               class="node-title related-widget-wrapper-link change-related" 
+               data-popup="yes" 
+               data-reload-parent="true"
+               title="Edit {{ node.title }}">
+                {{ node.title }}
+            </a>
+            <span class="node-meta">({{ node.type }}, #{{ node.order }})</span>
+        </div>
+        
+        <div class="node-actions">
+            {% if node.child_node_types %}
+                <div class="dropdown">
+                    <a href="#" class="dropdown-button" onclick="toggleDropdown(event, this)">
+                        ➕ Add Child Node ▼
+                    </a>
+                    <div class="dropdown-content">
+                        {% for child_type in node.child_node_types %}
+                            <a href="{{ child_type.url }}" 
+                               class="related-widget-wrapper-link add-related"
+                               data-popup="yes" 
+                               data-reload-parent="true"
+                               title="Add {{ child_type.name }} to {{ node.title }}">
+                                {{ child_type.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if node.children %}
+        <ul class="child-nodes" data-parent-id="{{ node.id }}">
+            {% for child in node.children %}
+                {% include "admin/automation/shared/node_item.html" with node=child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

@@ -1,0 +1,101 @@
+services:
+  postgres:
+    container_name: previta-postgres
+    image: postgres:15
+    environment:
+      POSTGRES_DB: previta
+      POSTGRES_USER: previta
+      POSTGRES_PASSWORD: previta123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "2"
+
+  redis:
+    container_name: previta-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "2"
+
+  previta-service:
+    container_name: previta-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      cache_from:
+        - previta-core:latest
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: "previta-core:latest"
+    working_dir: /previta
+    command: bash -c "./start-service-dev.sh"
+    ports:
+      - "8882:8882"
+    volumes:
+      - ./:/previta:delegated # Use cached instead of delegated for better performance
+      - pip-cache:/root/.cache/pip:delegated
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m" # Reduced for better performance
+        max-file: "2"
+    env_file: .env
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+  previta-scheduler:
+    container_name: previta-scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      cache_from:
+        - previta-core:latest
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: "previta-core:latest"
+    working_dir: /previta
+    command: bash -c "./start-scheduler-dev.sh"
+    volumes:
+      - ./:/previta:delegated
+      - pip-cache:/root/.cache/pip:delegated
+    # network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file: .env
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres
+      - redis
+      - previta-service
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "2"
+    restart: unless-stopped
+volumes:
+  pip-cache:
+  postgres_data:
+  redis_data:
