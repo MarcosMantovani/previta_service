@@ -106,8 +106,20 @@ WORKDIR /previta
 COPY --chown=previta:previta . /previta/
 RUN rm -rf /previta/static
 
-# Make scripts executable (now they will be copied thanks to .dockerignore fix)
-RUN chmod +x /previta/start-service.sh /previta/start-service-dev.sh /previta/start-scheduler.sh /previta/start-scheduler-dev.sh /previta/wait-for-it.sh
+# DEBUG: List all files to see what was copied
+RUN echo "=== DEBUG: Files in /previta ==="
+RUN ls -la /previta/
+RUN echo "=== DEBUG: Looking for .sh files ==="
+RUN find /previta/ -name "*.sh" -type f || echo "No .sh files found"
+RUN echo "=== DEBUG: Current directory contents ==="
+RUN pwd && ls -la
+
+# Make scripts executable (if they exist)
+RUN if [ -f /previta/start-service-dev.sh ]; then chmod +x /previta/start-service-dev.sh; else echo "start-service-dev.sh NOT FOUND"; fi
+RUN if [ -f /previta/start-service.sh ]; then chmod +x /previta/start-service.sh; else echo "start-service.sh NOT FOUND"; fi
+RUN if [ -f /previta/start-scheduler.sh ]; then chmod +x /previta/start-scheduler.sh; else echo "start-scheduler.sh NOT FOUND"; fi
+RUN if [ -f /previta/start-scheduler-dev.sh ]; then chmod +x /previta/start-scheduler-dev.sh; else echo "start-scheduler-dev.sh NOT FOUND"; fi
+RUN if [ -f /previta/wait-for-it.sh ]; then chmod +x /previta/wait-for-it.sh; else echo "wait-for-it.sh NOT FOUND"; fi
 
 # Switch to non-root user for security
 USER previta
