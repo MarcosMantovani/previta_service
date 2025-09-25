@@ -7,10 +7,6 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-ENV FFMPEG_BIN=/opt/ffmpeg/bin/ffmpeg \
-    FFPROBE_BIN=/opt/ffmpeg/bin/ffprobe
-
-
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -32,25 +28,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     tesseract-ocr-por \
     && rm -rf /var/lib/apt/lists/*
-
-######################################################################
-# FFmpeg (versão recente, já com suporte ao filtro arnndn) + modelo RNN
-######################################################################
-# Copia os arquivos locais para o container
-COPY resources/ffmpeg-master-latest-linux64-gpl.tar.xz /tmp/ffmpeg.tar.xz
-COPY resources/sh.rnnn /usr/local/share/rnnoise-model.rnn
-
-# 1) extrai o build estático (Linux x86-64) do arquivo local
-RUN mkdir -p /opt/ffmpeg \
-    && tar -xJf /tmp/ffmpeg.tar.xz -C /opt/ffmpeg --strip-components=1 \
-    # 2) coloca os binários no PATH antes dos que vieram do apt
-    && ln -sf /opt/ffmpeg/bin/ffmpeg  /usr/local/bin/ffmpeg  \
-    && ln -sf /opt/ffmpeg/bin/ffprobe /usr/local/bin/ffprobe \
-    # 3) limpeza
-    && rm /tmp/ffmpeg.tar.xz
-
-# (opcional) verificação rápida durante o build — não afeta a imagem final
-RUN ffmpeg -hide_banner -filters | grep arnndn
 
 # Create virtual environment
 RUN python -m venv /opt/venv
@@ -96,12 +73,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy virtual environment from builder stage
 COPY --from=builder /opt/venv /opt/venv
-
-# Copy ffmpeg binaries from builder stage
-COPY --from=builder /opt/ffmpeg /opt/ffmpeg
-COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
-COPY --from=builder /usr/local/bin/ffprobe /usr/local/bin/ffprobe
-COPY --from=builder /usr/local/share/rnnoise-model.rnn /usr/local/share/rnnoise-model.rnn
 
 # Create app directory and user
 RUN groupadd -r previta && useradd -r -g previta previta

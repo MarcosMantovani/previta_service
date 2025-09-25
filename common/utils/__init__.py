@@ -34,25 +34,7 @@ from .image import (
     enhance_image,
 )
 
-# Audio processing
-from .audio import (
-    get_mp3_from_media_url,
-    get_audio_duration_from_mp3_bytes,
-    convert_generator_to_mp3_bytes,
-    convert_mp3_to_base64,
-    get_mean_volume_from_audio_file,
-    get_duration_seconds_from_audio_file,
-    file_has_audio_stream,
-    FFMPEG_BIN,
-    FFPROBE_BIN,
-    RNNOISE_MODEL,
-    _VAD_FILTER,
-)
-
-# Video processing
-from .video import (
-    extract_representative_frames_from_video_url,
-)
+# Audio and video processing removed - not needed for this project
 
 # Document processing
 from .document import (
@@ -97,20 +79,6 @@ __all__ = [
     "extract_text_from_image",
     "_looks_like_document",
     "enhance_image",
-    # Audio
-    "get_mp3_from_media_url",
-    "get_audio_duration_from_mp3_bytes",
-    "convert_generator_to_mp3_bytes",
-    "convert_mp3_to_base64",
-    "get_mean_volume_from_audio_file",
-    "get_duration_seconds_from_audio_file",
-    "file_has_audio_stream",
-    "FFMPEG_BIN",
-    "FFPROBE_BIN",
-    "RNNOISE_MODEL",
-    "_VAD_FILTER",
-    # Video
-    "extract_representative_frames_from_video_url",
     # Document
     "extract_text_from_pdf",
     "extract_text_from_docx",
