@@ -36,13 +36,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: "previta-core:latest"
+    image: "previta-core:debug"
     working_dir: /app
     command: bash -c "pwd && ls -la && ls -la *.sh && ./start-service-dev.sh"
     ports:
       - "8882:8882"
     volumes:
-      - ./:/app:delegated # Use cached instead of delegated for better performance
       - pip-cache:/root/.cache/pip:delegated
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -63,11 +62,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: "previta-core:latest"
+    image: "previta-core:debug"
     working_dir: /app
     command: bash -c "./start-scheduler-dev.sh"
     volumes:
-      - ./:/app:delegated
       - pip-cache:/root/.cache/pip:delegated
     # network_mode: host
     extra_hosts:
