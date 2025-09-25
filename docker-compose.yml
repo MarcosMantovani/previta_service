@@ -36,18 +36,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
-      cache_from:
-        - previta-core:latest
-      args:
-        - BUILDKIT_INLINE_CACHE=1
     image: "previta-core:latest"
-    working_dir: /previta
+    working_dir: /app
     command: bash -c "pwd && ls -la && ls -la *.sh && ./start-service-dev.sh"
     ports:
       - "8882:8882"
     volumes:
-      - ./:/previta:delegated # Use cached instead of delegated for better performance
+      - ./:/app:delegated # Use cached instead of delegated for better performance
       - pip-cache:/root/.cache/pip:delegated
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -68,16 +63,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
-      cache_from:
-        - previta-core:latest
-      args:
-        - BUILDKIT_INLINE_CACHE=1
     image: "previta-core:latest"
-    working_dir: /previta
+    working_dir: /app
     command: bash -c "./start-scheduler-dev.sh"
     volumes:
-      - ./:/previta:delegated
+      - ./:/app:delegated
       - pip-cache:/root/.cache/pip:delegated
     # network_mode: host
     extra_hosts:
