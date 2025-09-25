@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "15432:5432"  # Porta bem distante para evitar conflitos
+      - "15432:5432"
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -21,7 +21,7 @@ services:
     container_name: previta-redis
     image: redis:7-alpine
     ports:
-      - "16379:6379"  # Porta bem distante para evitar conflitos
+      - "16379:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -99,3 +99,6 @@ volumes:
   pip-cache:
   postgres_data:
   redis_data:
+networks:
+  default:
+    driver: bridge
