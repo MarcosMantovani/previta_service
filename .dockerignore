@@ -75,9 +75,7 @@ temp/
 # Environment variables
 .env*
 
-# Scripts
-start-*.sh
-wait-for-it.sh
+# Scripts (removed to allow copying startup scripts)
 clear-migrations.py
 
 # Configs

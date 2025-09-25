@@ -106,8 +106,8 @@ WORKDIR /previta
 COPY --chown=previta:previta . /previta/
 RUN rm -rf /previta/static
 
-# Make scripts executable
-RUN chmod +x /previta/*.sh
+# Make scripts executable (now they will be copied thanks to .dockerignore fix)
+RUN chmod +x /previta/start-service.sh /previta/start-service-dev.sh /previta/start-scheduler.sh /previta/start-scheduler-dev.sh /previta/wait-for-it.sh
 
 # Switch to non-root user for security
 USER previta

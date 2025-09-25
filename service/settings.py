@@ -231,9 +231,9 @@ DATABASES = {
         "CONN_MAX_AGE": 60,
         "OPTIONS": {"sslmode": "disable"},
     },
-    # "contact_z_legacy": {
+    # "previta_legacy": {
     #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "contact_z_import",
+    #     "NAME": "previta_import",
     #     "USER": "postgres",
     #     "PASSWORD": "GT@564213manut",
     #     "HOST": "host.docker.internal",
