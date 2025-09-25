@@ -43,7 +43,7 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     image: "previta-core:latest"
     working_dir: /previta
-    command: bash -c "echo 'DEBUG: Current directory:' && pwd && echo 'DEBUG: Files present:' && ls -la && echo 'DEBUG: Looking for scripts:' && ls -la *.sh || echo 'No .sh files found' && echo 'DEBUG: Trying to run start-service-dev.sh:' && ./start-service-dev.sh"
+    command: bash -c "pwd && ls -la && ls -la *.sh && ./start-service-dev.sh"
     ports:
       - "8882:8882"
     volumes:
