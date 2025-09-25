@@ -1,5 +1,22 @@
 FROM python:3.10-slim
 
+# Install system dependencies needed for Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gcc \
+    build-essential \
+    python3-dev \
+    pkg-config \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libmagic-dev \
+    libproj-dev \
+    libvips-dev \
+    libgraphviz-dev \
+    tesseract-ocr \
+    tesseract-ocr-por \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /app
 
