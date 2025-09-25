@@ -106,5 +106,8 @@ WORKDIR /previta
 COPY --chown=previta:previta . /previta/
 RUN rm -rf /previta/static
 
+# Make scripts executable
+RUN chmod +x /previta/*.sh
+
 # Switch to non-root user for security
 USER previta
